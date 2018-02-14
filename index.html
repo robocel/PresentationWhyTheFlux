@@ -1,0 +1,376 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Why the Flux?! - State Management Patterns</title>
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/night.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/monokai-sublime.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section>
+                <h2>Why the Flux?!</h2>
+                <h6>Resolving to really understand state management in 2018</h6>
+                <p>Rob Ocel - Developer, PointSource - @robocell</p>
+                <p class="fragment">In 20 Minutes Or Less</p>
+            </section>
+            <section>
+                <img data-src="/images/state-library-opinions-2.png"/>
+            </section>
+            <section data-transition="none-out">
+                <h2>Goals</h2>
+                <p class="fragment fade-in"><span class="fragment fade-out">Never heard of or used state management patterns?</span></p>
+                <p class="fragment fade-in"><span class="fragment fade-out">Using a state management library but feeling confused?</span></p>
+                <p class="fragment fade-in"><span class="fragment fade-out">Are you a state management expert?</span></p>
+            </section>
+            <section>
+                <img data-src="/images/react-ecosystem.png"/>
+            </section>
+            <section>
+                <h3>State Libraries Are Ubiquitous</h3>
+                <ul>
+                    <li>Angular - ngrx/store, ng-redux</li>
+                    <li>React - Redux, MobX, Unstated, context, setState</li>
+                    <li>Vue - Vuex</li>
+                    <li>Preact - Unistore</li>
+                </ul>
+            </section>
+            <section>
+                But everything changed when the Fire Nation attacked...
+            </section>
+            <section><img data-src="/images/redux-tweet-1.png"/></section>
+            <section><img data-src="/images/redux-tweet-2.png"/></section>
+            <section><img data-src="/images/redux-tweet-3.png"/></section>
+            <section><img data-src="/images/redux-tweet-4.png"/></section>
+            <section>So what's the deal?</section>
+            <section>People get lost in Redux syntax without understanding the Redux pattern</section>
+            <section>So what's the answer? What's the pattern we're supposed to understand?</section>
+            <section>
+                <h3>Unidirectional Data Flow</h3>
+                <p>Data down; events up</p>
+            </section>
+            <section>
+                <h4>State</h4>
+                <ul>
+                    <li>Globally - Everything that differentiates one instance of an application from another</li>
+                    <li class="fragment">Locally - What a component knows better than everyone else</li>
+                    <li class="fragment">State Ownership
+                        <ul>
+                            <li>Only one component owns a piece of state across the application</li>
+                            <li>That component is responsible for fetching, changing, passing it</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <section>
+                <h4>When state ownership goes wrong?</h4>
+                <ul>
+                    <li>Components hold duplicate state (tough to synchronize)</li>
+                    <li>Hard to reason about where state is mutated</li>
+                    <li>Facebook's phantom notification</li>
+                </ul>
+            </section>
+            <section>
+                <h4>Props</h4>
+                <ul>
+                    <li>Passing Data - Parent-To-Child</li>
+                    <li>Immutable</li>
+                    <li>Loss of Fidelity</li>
+                </ul>
+            </section>
+            <section>
+                <pre>
+                    <code data-trim>
+                        function BoilingVerdict(props) {
+                            if (props.celsius >= 100) {
+                                return <p>Water would boil.</p>;
+                            }
+                            return <p>Water would not boil.</p>;
+                        }
+                    </code>
+                </pre>
+            </section>
+            <section>
+                <h4>Events</h4>
+                <ul>
+                    <li>Passing Data - Child-To-Parent</li>
+                    <li>Reflect External Input (Not Just User Input)</li>
+                    <li>Can add context to the input</li>
+                </ul>
+            </section>
+            <section data-transition="slide-in none-out"><img data-src="/images/State-Props-Events-Seq-0.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img data-src="/images/State-Props-Events-Seq-1.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img data-src="/images/State-Props-Events-Seq-2.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img data-src="/images/State-Props-Events-Seq-4.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img data-src="/images/State-Props-Events-Seq-5.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img data-src="/images/State-Props-Events-Seq-6.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img data-src="/images/State-Props-Events-Seq-7.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img data-src="/images/State-Props-Events-Seq-8.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img data-src="/images/State-Props-Events-Seq-9.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img data-src="/images/State-Props-Events-Seq-10.svg" style="background-color:white;"></section>
+            <section>
+                <pre>
+                    <code data-trim>
+                        <button-counter :amount="1"></button-counter>
+
+                        Vue.component("button-counter", {
+                            template: `<button v-on:click="incrementCounter">
+                                            {{ this.counter }}
+                                       </button>`,
+                            props: ["amount"],
+                            data: () => ({
+                                counter: 0
+                            }),
+                            methods: {
+                                incrementCounter: function() {
+                                    this.counter += this.amount;
+                                }
+                            }
+                        });
+                    </code>
+                </pre>
+            </section>
+            <section>
+                <h4>Data Hoisting/Prop Drilling</h4>
+                <ul>
+                    <li>When a component needs data that none of it's parents have (but someone else owns)</li>
+                    <li class="fragment">Move the data to the first shared ancestor of all components that need it</li>
+                    <li class="fragment">Pipe the data to the components through props (prop drilling)</li>
+                    <li class="fragment">To edit the data, pipe events back to the new data owner</li>
+                </ul>
+            </section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-0.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-1.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-2.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-3.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-4.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-5.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-6.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-7.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-8.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-9.svg" style="background-color:white;"></section>
+            <section data-transition="none"><img class="stretch" data-src="/images/Hoisting-Drilling-Seq-10.svg" style="background-color:white;"></section>
+            <section>
+                <pre>
+                    <code data-trim>
+                        Vue.component("button-counter", {
+                            template: `<button v-on:click="incrementCounter">
+                                            {{ this.counter }}
+                                       </button>`,
+                            props: ["counter", "amount"],
+                            methods: {
+                                incrementCounter: function() {
+                                    this.$emit("increment", this.amount);
+                                }
+                            }
+                        });
+                    </code>
+                </pre>
+            </section>
+            <section data-markdown>
+                <textarea data-template>
+                    <!-- {_class="stretch"} -->
+                    ```
+                    new Vue({
+                        el: "#app",
+                        template: `
+                            <div>
+                                <p>{{total}}</p>
+                                <button-counter
+                                    v-bind:counter="total"
+                                    v-bind:amount="1"
+                                    v-on:increment="incrementTotal">
+                                </button-counter>
+                                <button-counter
+                                    v-bind:counter="total"
+                                    v-bind:amount="2"
+                                    v-on:increment="incrementTotal"/>
+                                </button-counter>
+                            </div>
+                        `,
+                        data: { total: 0 },
+                        methods: {
+                            incrementTotal: function(amount) {
+                                this.total += amount;
+                            }
+                        }
+                    });
+                    ```
+                    <!-- .element: class="stretch" -->
+                </textarea>
+            </section>
+            <section>
+                <p>What happens when our tree gets larger?</p>
+                <p class="fragment">What happens if we had more state to share?</p>
+            </section>
+            <section>
+                <h4>Flux/Redux</h4>
+                <ul>
+                    <li>Developed by Facebook</li>
+                    <li>Pattern; not library</li>
+                    <li>Method for managing unidirectional data flow</li>
+                    <li>Flux !== Redux (but close enough for this talk)</li>
+                </ul>
+            </section>
+            <section><img data-src="/images/flux-architecture.png"></section>
+            <section><img data-src="/images/flux-architecture-2.png"></section>
+            <section>
+                <h4>Store</h4>
+                <ul>
+                    <li>All of the state for the application</li>
+                    <li>Allows actions to be dispatched</li>
+                    <li>Signals when state is updated</li>
+                </ul>
+            </section>
+            <section>
+                <pre class="stretch">
+                    <code data-trim>
+                            {
+                                selectedSubreddit: 'frontend',
+                                postsBySubreddit: {
+                                    frontend: {
+                                        isFetching: true,
+                                        didInvalidate: false,
+                                        items: []
+                                    },
+                                    reactjs: {
+                                        isFetching: false,
+                                        didInvalidate: false,
+                                        lastUpdated: 1439478405547,
+                                        items: [{
+                                                id: 42,
+                                                title: 'Confusion about Flux and Relay'
+                                        },
+                                        {
+                                            id: 500,
+                                            title: 'Creating a Simple Application'
+                                        }]
+                                    }
+                                }
+                            }
+                    </code>
+                </pre>
+            </section>
+            <section>
+                <h4>Actions</h4>
+                <ul>
+                    <li>Parameterized events</li>
+                    <li>Signal intent to change state</li>
+                    <li>Every input is an opportunity for a new action</li>
+                    <li>Comprised of:
+                        <ul>
+                            <li>Type</li>
+                            <li>Data</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <section>
+                <pre>
+                    <code data-trim>
+                        { type: 'LIKE_ARTICLE', articleId: 42 }
+                        { type: 'ADD_TODO', text: 'Read the Redux docs.' }
+                        { type: 'FETCH_POSTS_REQUEST' }
+                        { type: 'FETCH_POSTS_FAILURE', error: 'Oops' }
+                        { type: 'FETCH_POSTS_SUCCESS', response: { ... } }
+                    </code>
+                </pre>
+            </section>
+            <section>
+                <h4>Reducers</h4>
+                <ul>
+                    <li>(Action, State) => State</li>
+                    <li>Synchronous</li>
+                    <li>Pure (in some libraries)</li>
+                </ul>
+            </section>
+            <section>
+                <pre class="stretch">
+                    <code data-trim>
+                        function reducer(state = initialState, action) {
+                            switch (action.type) {
+                                case 'ADD_TODO':
+                                    return Object.assign({}, state, {
+                                        todos: [...state.todos, {
+                                            text: action.text
+                                        }]
+                                    });
+                                case 'SET_VISIBILITY_FILTER':
+                                    return Object.assign({}, state, {
+                                        visibilityFilter: action.filter
+                                    });
+                                default:
+                                    return state;
+                            }
+                        }
+                    </code>
+                </pre>
+            </section>
+            <section>
+                <h4>Takeaways:</h4>
+                <ul>
+                    <li>Layout your problem in a library-agnostic way using state-management principles
+                        <ul>
+                            <li>State Machines (Develop your state tree)</li>
+                            <li>User Flows (Figure out your actions)</li>
+                            <li>Business Logic (Design your reducers and side-effects)</li>
+                            <li>Assign Data Ownership</li>
+                        </ul>
+                    </li>
+                    <li>Map your approach to the syntax of your library</li>
+                    <li>Don’t be afraid to just take a stab at it and iterate later</li>
+                </ul>
+            </section>
+            <section>
+                <h4>Links</h4>
+                <ul>
+                    <li>Come talk to me! @RoboCell on Twitter!</li>
+                    <li><a href="https://www.youtube.com/watch?v=pLvrZPSzHxo">Lee Byron - Immutable User Interfaces</a></li>
+                    <li><a href="http://blog.mgechev.com/2017/12/07/redux-anti-patterns-race-conditions-state-management-duplication/">Minko Gechev - Redux Anti Patterns</a></li>
+                    <li><a href="https://stateofjs.com/">NPM - State of JavaScript 2017</a></li>
+                    <li><a href="https://www.npmjs.com/npm/the-state-of-javascript-frameworks-2017-part-2-the-react-ecosystem">NPM - State of JavaScript 2017 - React Ecosystem</a></li>
+                    <li><a href="https://facebook.github.io/flux/docs/in-depth-overview.html">Flux Documentation</a></li>
+                    <li><a href="https://reactjs.org/docs/lifting-state-up.html">React Documentation</a></li>
+                    <li><a href="https://vuejs.org/v2/guide/components.html#Custom-Events">Vue Documentation</a></li>
+                </ul>
+            </section>
+        </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+        // More info about config & dependencies:
+        // - https://github.com/hakimel/reveal.js#configuration
+        // - https://github.com/hakimel/reveal.js#dependencies
+        Reveal.initialize({
+            dependencies: [
+                { src: 'plugin/markdown/marked.js' },
+                { src: 'plugin/markdown/markdown.js' },
+                { src: 'plugin/notes/notes.js', async: true },
+                { src: 'plugin/highlight/highlight.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } }
+            ]
+        });
+    </script>
+</body>
+
+</html>
